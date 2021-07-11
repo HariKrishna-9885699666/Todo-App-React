@@ -4,17 +4,11 @@ import {
   InputGroup,
   InputRightElement,
   Stack,
-  Center,
   Wrap,
-  WrapItem,
   LinkBox,
-  LinkOverlay,
   Heading,
-  Box,
-  Text,
   Spacer,
   Flex,
-  Grid,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -29,10 +23,9 @@ import {
   Checkbox,
   List,
   ListItem,
-  ListIcon,
 } from "@chakra-ui/react";
 import uuid from "react-uuid";
-import { FcPlus, FcRight } from "react-icons/fc";
+import { FcPlus } from "react-icons/fc";
 import moment from "moment";
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { Formik, Form } from "formik";
@@ -68,16 +61,12 @@ function Todo() {
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-
   const initialRef = React.useRef();
   const finalRef = React.useRef();
-
   const [taskTitle, setTaskTitle] = useState(null);
   const [taskItem, setTaskItem] = useState("");
   const [taskItemArr, setTaskItemArr] = useState([]);
   const [taskId, setTaskId] = useState(null);
-
-  //   console.log("taskItemArr", taskItemArr);
   return (
     <>
       <Formik
@@ -89,9 +78,6 @@ function Todo() {
           task: Yup.string().required(),
         })}
         onSubmit={(values, formikBag) => {
-          //   const taskList = values.taskList.length > 0 ? values.taskList : [];
-          //   taskList.push(values.task);
-          //   formikBag.setFieldValue("taskList", taskList);
           formikBag.setFieldValue("task", "");
           formikBag.setFieldTouched("task", false);
 
@@ -106,14 +92,7 @@ function Todo() {
           store.set("taskList", storeTasksList);
         }}
       >
-        {({
-          values,
-          setFieldValue,
-          isSubmitting,
-          errors,
-          setValues,
-          handleSubmit: onSubmit,
-        }) => {
+        {({ setFieldValue, setValues, handleSubmit: onSubmit }) => {
           return (
             <Stack spacing={3} padding={30}>
               <Form noValidate>
@@ -136,7 +115,6 @@ function Todo() {
               </Form>
 
               <Wrap>
-                {/* {JSON.parse(JSON.stringify(values.taskList)).map( */}
                 {store.get("taskList") &&
                   store.get("taskList").map((item, index) => {
                     let clr = colors[index] || getColor();
@@ -149,9 +127,6 @@ function Todo() {
                         p="2"
                         borderWidth="1px"
                         rounded="md"
-                        onClick={() => {
-                          //   console.log("test", item);
-                        }}
                         bg={`${clr}.200`}
                         display="flex"
                         flexDirection="column"
@@ -179,6 +154,7 @@ function Todo() {
                             onClick={() => {
                               setTaskTitle(item.title);
                               setTaskId(item.id);
+                              setTaskItemArr(item.items);
                               onOpen();
                               return false;
                             }}
@@ -245,16 +221,24 @@ function Todo() {
                               variant="solid"
                               type="button"
                               onClick={() => {
-                                // console.log(taskItem);
-                                // setTaskItemArr([taskItem]);
-
-                                setTaskItemArr((prevState) => [
-                                  ...prevState,
-                                  taskItem,
+                                const taskItemObj = {
+                                  id: uuid(),
+                                  item: taskItem,
+                                  status: "open",
+                                };
+                                setTaskItemArr((prevItems) => [
+                                  ...prevItems,
+                                  taskItemObj,
                                 ]);
-
-                                // console.log(taskItemArr);
-
+                                const allTasks = store.get("taskList");
+                                const foundIndex = allTasks.findIndex(
+                                  (obj) => obj.id === taskId
+                                );
+                                allTasks[foundIndex].items = [
+                                  ...taskItemArr,
+                                  taskItemObj,
+                                ];
+                                store.set("taskList", allTasks);
                                 setTaskItem("");
                               }}
                             >
@@ -267,7 +251,37 @@ function Todo() {
                           {taskItemArr.map((item, index) => {
                             return (
                               <ListItem key={uuid()}>
-                                <Checkbox colorScheme="red">{item}</Checkbox>
+                                <Checkbox
+                                  colorScheme="red"
+                                  defaultChecked={
+                                    item.status === "completed" ? true : false
+                                  }
+                                  textDecoration={
+                                    item.status === "completed"
+                                      ? "line-through"
+                                      : "none"
+                                  }
+                                  onChange={(e) => {
+                                    const allTasks = store.get("taskList");
+                                    const foundIndex = allTasks.findIndex(
+                                      (obj) => obj.id === taskId
+                                    );
+                                    const foundIndexOfTaskItems = allTasks[
+                                      foundIndex
+                                    ].items.findIndex(
+                                      (obj) => obj.id === item.id
+                                    );
+                                    allTasks[foundIndex].items[
+                                      foundIndexOfTaskItems
+                                    ].status = e.target.checked
+                                      ? "completed"
+                                      : "open";
+                                    store.set("taskList", allTasks);
+                                    setTaskItemArr(allTasks[foundIndex].items);
+                                  }}
+                                >
+                                  {item.item}
+                                </Checkbox>
                               </ListItem>
                             );
                           })}
@@ -286,6 +300,7 @@ function Todo() {
                           (obj) => obj.id === taskId
                         );
                         allTasks[foundIndex].title = taskTitle;
+                        allTasks[foundIndex].items = taskItemArr;
                         store.set("taskList", allTasks);
                         forceUpdate();
                         onClose();

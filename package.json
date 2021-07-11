@@ -1,7 +1,13 @@
 {
   "name": "todo-reactapp",
   "version": "0.1.0",
-  "private": true,
+  "license": "BSD-3-Clause",
+  "description": "To Do React Application ",
+  "author": {
+    "name": "Hari Krishna Anem",
+    "email": "anemharikrishna@gmail.com",
+    "url": "https://harikrishna.netlify.com/"
+  },
   "dependencies": {
     "@chakra-ui/react": "^1.6.5",
     "@emotion/react": "^11",
