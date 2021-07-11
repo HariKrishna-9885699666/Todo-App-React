@@ -35,6 +35,7 @@ import { timeAgo } from "../utils/handlers";
 var store = require("store");
 
 function Todo() {
+  // eslint-disable-next-line no-unused-vars
   const [_, forceUpdate] = useReducer((x) => x + 1, 0);
   const colors = [
     "red",
