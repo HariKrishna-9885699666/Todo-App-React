@@ -60,7 +60,7 @@ function About(props) {
                   <List spacing={3}>
                     <ListItem>
                       <ListIcon as={FcBusinessman} color="green.500" />
-                      Hari Krishns Anem
+                      Hari Krishna Anem
                     </ListItem>
                     <ListItem>
                       <ListIcon as={FcCellPhone} color="green.500" />
