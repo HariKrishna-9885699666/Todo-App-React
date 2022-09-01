@@ -85,6 +85,12 @@ function About(props) {
                         Portfolio
                       </Link>
                     </ListItem>
+                    <ListItem>
+                      <ListIcon as={VscLink} color="green.500" />
+                      <Link href="https://harikrishna.hashnode.dev/" isExternal>
+                        Blog
+                      </Link>
+                    </ListItem>
                   </List>
                 </AccordionPanel>
               </AccordionItem>
